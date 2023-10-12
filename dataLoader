@@ -1,0 +1,93 @@
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+
+public class dataLoader {
+
+    LinkedList<Driver> drivers =  new LinkedList<>();
+    LinkedList<String> header = new LinkedList<>();
+
+    public void loadCSV() {
+        Driver d;
+        int head = 0;
+
+        String path = "/Users/anish/Documents/DriverLincese.csv";
+        String line = "";
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(path));
+
+            while((line = br.readLine())!= null) {
+                if(head == 0) {
+                    head++;
+                    String [] top = line.split(",");
+
+                    for(int i = 0; i< top.length; i++)
+                        header.add(top[i]);
+                }
+                else {
+                    String [] v = line.split(",");
+                    drivers.add(convert(v));
+                }
+
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public Driver convert(String[] v) {
+        String FN = v[0];
+        String LN = v[1];
+        String gen = v[2];
+        String DOB = v[3];
+        int age = calculateAge(v[3]);
+        String EC = v[5];
+        String Add = v[6];
+        int point = Integer.parseInt(v[7]);
+
+
+        Driver d = new Driver(FN, LN, gen, DOB, age, EC, Add, point);
+        return d;
+
+    }
+
+    private int calculateAge(String date) {
+        LocalDate dob = LocalDate.parse(date);
+        return calculateAge(dob);
+    }
+
+
+    private int calculateAge(LocalDate dob) {
+        //creating an instance of the LocalDate class and invoking the now() method
+        //now() method obtains the current date from the system clock in the default time zone
+        LocalDate curDate = LocalDate.now();
+        //calculates the amount of time between two dates and returns the years
+        if ((dob != null) && (curDate != null))
+        {
+            return Period.between(dob, curDate).getYears();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    public LinkedList<Driver> getDrivers(){
+        return drivers;
+    }
+
+    public LinkedList<String> getHeader(){
+        return header;
+    }
+
+}
