@@ -1,55 +1,60 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedList;
+import javax.swing.table.TableRowSorter;
 
 public class DriverInfoGUI extends JFrame {
     private DefaultTableModel tableModel;
     private JTable driverTable;
-    private JButton saveButton;
+    private String csvFilePath = "/Users/anish/Documents/DriverLicense.csv"; // Update this path
 
     public DriverInfoGUI(LinkedList<Driver> drivers, LinkedList<String> header) {
         setTitle("Driver Information");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create a table model with columns from the header
-        tableModel = new DefaultTableModel();
-        for (String column : header) {
-            tableModel.addColumn(column);
-        }
-
-        // Add driver data to the table model
-        for (Driver driver : drivers) {
-            Object[] rowData = {
-                    driver.FN, driver.LN, driver.gen, driver.DOB, driver.age, driver.EC, driver.Add, driver.point
-            };
-            tableModel.addRow(rowData);
-        }
-
-        // Create a JTable with the table model
+        // Create the table model and table
+        tableModel = new DefaultTableModel(new String[0][0], header.toArray());
         driverTable = new JTable(tableModel);
 
-        // Create a scroll pane for the table
+        // Populate the table with driver data
+        for (Driver driver : drivers) {
+            tableModel.addRow(driver.toRow());
+        }
+
         JScrollPane scrollPane = new JScrollPane(driverTable);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        // Add the scroll pane to the frame
-        add(scrollPane, BorderLayout.CENTER);
+        // Create a SearchDriver instance for filtering
+        SearchDriver searchDriver = new SearchDriver(tableModel);
+        driverTable.setRowSorter(searchDriver.getRowSorter());
 
-        // Create save button
-        saveButton = new JButton("Save Changes to CSV");
+        // Create a search panel with a text field, a search button, and an edit button
+        JPanel controlPanel = new JPanel();
+        JTextField searchField = new JTextField(20);
+        JButton searchButton = new JButton("Search");
+        JButton saveButton = new JButton("Edit");
 
         // Add action listener to save button
         saveButton.addActionListener(e -> saveChangesToCSV());
 
-        // Create panel for save control
-        JPanel controlPanel = new JPanel();
+        controlPanel.add(searchField);
+        controlPanel.add(searchButton);
         controlPanel.add(saveButton);
 
-        add(controlPanel, BorderLayout.SOUTH);
+        // Add an action listener to the search button
+        searchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = searchField.getText();
+                searchDriver.setSearch(searchText);
+            }
+        });
+
+        // Add components to the frame
+        getContentPane().add(controlPanel, BorderLayout.NORTH);
     }
 
     private void saveChangesToCSV() {
@@ -83,7 +88,10 @@ public class DriverInfoGUI extends JFrame {
         }
     }
 
+
+
     public static void main(String[] args) {
+        // Load your data and create the loader instance
         dataLoader loader = new dataLoader();
         loader.loadCSV();
 
