@@ -1,0 +1,34 @@
+import java.util.LinkedList;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+public class SearchDriver {
+    private TableRowSorter<DefaultTableModel> rowSorter;
+    private DefaultTableModel tableModel;
+
+    public SearchDriver(DefaultTableModel tableModel) {
+        this.tableModel = tableModel;
+        rowSorter = new TableRowSorter<>(tableModel);
+    }
+
+    public void setSearch(String text) {
+        if (text.trim().length() == 0) {
+            rowSorter.setRowFilter(null);
+        } else {
+            RowFilter<DefaultTableModel, Object> rf = RowFilter.regexFilter("(?i)" + text);
+            rowSorter.setRowFilter(rf);
+        }
+    }
+
+    public TableRowSorter<DefaultTableModel> getRowSorter() {
+        return rowSorter;
+    }
+
+    public void applyFilter(LinkedList<Driver> drivers) {
+        for (Driver driver : drivers) {
+            tableModel.addRow(new Object[] { driver.FN, driver.LN, driver.gen, driver.DOB, driver.age, driver.EC, driver.Add, driver.point });
+        }
+    }
+}
+
