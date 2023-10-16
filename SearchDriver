@@ -16,8 +16,19 @@ public class SearchDriver {
         if (text.trim().length() == 0) {
             rowSorter.setRowFilter(null);
         } else {
-            RowFilter<DefaultTableModel, Object> rf = RowFilter.regexFilter("(?i)" + text);
-            rowSorter.setRowFilter(rf);
+            if (text.equals("suspended")) {
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 14, 7);
+                rowSorter.setRowFilter(rf);
+            } else if (text.equals("over18")) {
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 17, 4);
+                rowSorter.setRowFilter(rf);
+            } else if (text.equals("under18")) {
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.BEFORE, 18, 4);
+                rowSorter.setRowFilter(rf);
+            } else {
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.regexFilter("(?i)" + text);
+                rowSorter.setRowFilter(rf);
+            }
         }
     }
 
@@ -30,5 +41,6 @@ public class SearchDriver {
             tableModel.addRow(new Object[] { driver.FN, driver.LN, driver.gen, driver.DOB, driver.age, driver.EC, driver.Add, driver.point });
         }
     }
+
 }
 
