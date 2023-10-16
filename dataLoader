@@ -1,130 +1,93 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.LinkedList;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JComboBox;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.table.TableRowSorter;
 
-public class DriverInfoGUI extends JFrame {
-    private DefaultTableModel tableModel;
-    private JTable driverTable;
-    private String csvFilePath = "/Users/anish/Documents/DriverLicense.csv";
-    private JComboBox<String> ageFilterComboBox;
+public class dataLoader {
 
-    public DriverInfoGUI(LinkedList<Driver> drivers, LinkedList<String> header) {
-        setTitle("Driver Information");
-        setSize(800, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    LinkedList<Driver> drivers =  new LinkedList<>();
+    LinkedList<String> header = new LinkedList<>();
 
-        // Create the table model and table
-        tableModel = new DefaultTableModel(new String[0][0], header.toArray());
-        driverTable = new JTable(tableModel);
+    public void loadCSV() {
+        Driver d;
+        int head = 0;
 
-        // Populate the table with driver data
-        for (Driver driver : drivers) {
-            tableModel.addRow(driver.toRow());
-        }
+        String path = "/Users/anish/Documents/DriverLincese.csv";
+        String line = "";
 
-        JScrollPane scrollPane = new JScrollPane(driverTable);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
-        // Create a SearchDriver instance for filtering
-        SearchDriver searchDriver = new SearchDriver(tableModel);
-        driverTable.setRowSorter(searchDriver.getRowSorter());
-
-        // Create a search panel with a text field, a search button, and an edit button
-        JPanel controlPanel = new JPanel();
-        JTextField searchField = new JTextField(20);
-        JButton searchButton = new JButton("Search");
-        JButton saveButton = new JButton("Edit");
-
-        ageFilterComboBox = new JComboBox<>();
-        ageFilterComboBox.addItem("All");
-        ageFilterComboBox.addItem("Over 18");
-        ageFilterComboBox.addItem("Under 18");
-        ageFilterComboBox.addItem("Suspended");
-
-        // Add action listener to save button
-        saveButton.addActionListener(e -> saveChangesToCSV());
-
-        controlPanel.add(searchField);
-        controlPanel.add(searchButton);
-        controlPanel.add(ageFilterComboBox);
-        controlPanel.add(saveButton);
-
-        // Add an action listener to the search button
-        searchButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String searchText = searchField.getText();
-                searchDriver.setSearch(searchText);
-            }
-        });
-
-        // Add an action listener to the age filter dropdown
-        ageFilterComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedFilter = (String) ageFilterComboBox.getSelectedItem();
-                if (selectedFilter.equals("All")) {
-                    searchDriver.setSearch("");
-                } else if (selectedFilter.equals("Over 18")) {
-                    searchDriver.setSearch("over18");
-                } else if (selectedFilter.equals("Under 18")) {
-                    searchDriver.setSearch("under18");
-                }else if (selectedFilter.equals("Suspended")) {
-                    searchDriver.setSearch("suspended");
-                }
-            }
-        });
-
-        // Add components to the frame
-        getContentPane().add(controlPanel, BorderLayout.NORTH);
-    }
-
-    private void saveChangesToCSV() {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("/Users/anish/Documents/DriverLincese.csv"));
-            // Write the header row
-            for (int i = 0; i < tableModel.getColumnCount(); i++) {
-                writer.write(tableModel.getColumnName(i));
-                if (i < tableModel.getColumnCount() - 1) {
-                    writer.write(",");
-                }
-            }
-            writer.write("\n");
+            BufferedReader br = new BufferedReader(new FileReader(path));
 
-            // Write the data rows
-            for (int row = 0; row < tableModel.getRowCount(); row++) {
-                for (int col = 0; col < tableModel.getColumnCount(); col++) {
-                    Object value = tableModel.getValueAt(row, col);
-                    writer.write(value.toString());
-                    if (col < tableModel.getColumnCount() - 1) {
-                        writer.write(",");
-                    }
+            while((line = br.readLine())!= null) {
+                if(head == 0) {
+                    head++;
+                    String [] top = line.split(",");
+
+                    for(int i = 0; i< top.length; i++)
+                        header.add(top[i]);
                 }
-                writer.write("\n");
+                else {
+                    String [] v = line.split(",");
+                    drivers.add(convert(v));
+                }
+
             }
 
-            writer.close();
-            JOptionPane.showMessageDialog(this, "Changes saved to CSV file.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error saving changes to CSV file: " + e.getMessage());
+
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public Driver convert(String[] v) {
+        String FN = v[0];
+        String LN = v[1];
+        String gen = v[2];
+        String DOB = v[3];
+        int age = calculateAge(v[3]);
+        String EC = v[5];
+        String Add = v[6];
+        int point = Integer.parseInt(v[7]);
+
+
+        Driver d = new Driver(FN, LN, gen, DOB, age, EC, Add, point);
+        return d;
+
+    }
+
+    private int calculateAge(String date) {
+        LocalDate dob = LocalDate.parse(date);
+        return calculateAge(dob);
+    }
+
+
+    private int calculateAge(LocalDate dob) {
+        //creating an instance of the LocalDate class and invoking the now() method
+        //now() method obtains the current date from the system clock in the default time zone
+        LocalDate curDate = LocalDate.now();
+        //calculates the amount of time between two dates and returns the years
+        if ((dob != null) && (curDate != null))
+        {
+            return Period.between(dob, curDate).getYears();
+        }
+        else
+        {
+            return 0;
         }
     }
 
 
-
-    public static void main(String[] args) {
-        // Load your data and create the loader instance
-        dataLoader loader = new dataLoader();
-        loader.loadCSV();
-
-        SwingUtilities.invokeLater(() -> {
-            DriverInfoGUI frame = new DriverInfoGUI(loader.getDrivers(), loader.getHeader());
-            frame.setVisible(true);
-        });
+    public LinkedList<Driver> getDrivers(){
+        return drivers;
     }
+
+    public LinkedList<String> getHeader(){
+        return header;
+    }
+
 }
