@@ -4,12 +4,16 @@ import java.io.*;
 import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JComboBox;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.table.TableRowSorter;
 
 public class DriverInfoGUI extends JFrame {
     private DefaultTableModel tableModel;
     private JTable driverTable;
-    private String csvFilePath = "/Users/anish/Documents/DriverLicense.csv"; // Update this path
+    private String csvFilePath = "/Users/anish/Documents/DriverLicense.csv";
+    private JComboBox<String> ageFilterComboBox;
 
     public DriverInfoGUI(LinkedList<Driver> drivers, LinkedList<String> header) {
         setTitle("Driver Information");
@@ -38,11 +42,18 @@ public class DriverInfoGUI extends JFrame {
         JButton searchButton = new JButton("Search");
         JButton saveButton = new JButton("Edit");
 
+        ageFilterComboBox = new JComboBox<>();
+        ageFilterComboBox.addItem("All");
+        ageFilterComboBox.addItem("Over 18");
+        ageFilterComboBox.addItem("Under 18");
+        ageFilterComboBox.addItem("Suspended");
+
         // Add action listener to save button
         saveButton.addActionListener(e -> saveChangesToCSV());
 
         controlPanel.add(searchField);
         controlPanel.add(searchButton);
+        controlPanel.add(ageFilterComboBox);
         controlPanel.add(saveButton);
 
         // Add an action listener to the search button
@@ -50,6 +61,22 @@ public class DriverInfoGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String searchText = searchField.getText();
                 searchDriver.setSearch(searchText);
+            }
+        });
+
+        // Add an action listener to the age filter dropdown
+        ageFilterComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String selectedFilter = (String) ageFilterComboBox.getSelectedItem();
+                if (selectedFilter.equals("All")) {
+                    searchDriver.setSearch("");
+                } else if (selectedFilter.equals("Over 18")) {
+                    searchDriver.setSearch("over18");
+                } else if (selectedFilter.equals("Under 18")) {
+                    searchDriver.setSearch("under18");
+                }else if (selectedFilter.equals("Suspended")) {
+                    searchDriver.setSearch("suspended");
+                }
             }
         });
 
