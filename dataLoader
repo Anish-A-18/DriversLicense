@@ -1,9 +1,12 @@
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 
 public class dataLoader {
@@ -39,12 +42,14 @@ public class dataLoader {
         } catch (IOException e) {
 
             e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
 
-    public Driver convert(String[] v) {
+    public Driver convert(String[] v) throws ParseException {
         String FN = v[0];
         String LN = v[1];
         String gen = v[2];
@@ -53,9 +58,14 @@ public class dataLoader {
         String EC = v[5];
         String Add = v[6];
         int point = Integer.parseInt(v[7]);
+        Date experation = null;
+        try {
+            experation = new SimpleDateFormat("yyyy-mm-dd").parse(v[8]);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
-
-        Driver d = new Driver(FN, LN, gen, DOB, age, EC, Add, point);
+        Driver d = new Driver(FN, LN, gen, DOB, age, EC, Add, point, experation);
         return d;
 
     }
