@@ -47,6 +47,7 @@ public class DriverInfoGUI extends JFrame {
         ageFilterComboBox.addItem("Over 18");
         ageFilterComboBox.addItem("Under 18");
         ageFilterComboBox.addItem("Suspended");
+        ageFilterComboBox.addItem("Expired");
 
         // Add action listener to save button
         saveButton.addActionListener(e -> saveChangesToCSV());
@@ -76,6 +77,8 @@ public class DriverInfoGUI extends JFrame {
                     searchDriver.setSearch("under18");
                 }else if (selectedFilter.equals("Suspended")) {
                     searchDriver.setSearch("suspended");
+                }else if (selectedFilter.equals("Expired")) {
+                    searchDriver.setSearch("expired");
                 }
             }
         });
