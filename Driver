@@ -1,9 +1,11 @@
+import java.util.Date;
 
 public class Driver {
     String FN, LN, gen, DOB, EC, Add;
+    Date experation;
     int age, point;
 
-    public Driver(String FN, String LN, String gen, String DOB, int age, String EC, String Add, int point) {
+    public Driver(String FN, String LN, String gen, String DOB, int age, String EC, String Add, int point, Date experation) {
         this.FN = FN;
         this.LN = LN;
         this.gen = gen;
@@ -12,13 +14,12 @@ public class Driver {
         this.EC = EC;
         this.Add = Add;
         this.point = point;
+        this.experation = experation;
     }
 
     public Object[] toRow() {
-        return new Object[]{FN, LN, gen, DOB, age, EC, Add, point};
+        return new Object[]{FN, LN, gen, DOB, age, EC, Add, point, experation};
     }
-
-
 
 }
 
