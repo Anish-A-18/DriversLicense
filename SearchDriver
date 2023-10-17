@@ -1,3 +1,6 @@
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +22,11 @@ public class SearchDriver {
             if (text.equals("suspended")) {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 14, 7);
                 rowSorter.setRowFilter(rf);
-            } else if (text.equals("over18")) {
+            } else if (text.equals("expired")) {
+                Date date = new Date();
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, date,8);
+                rowSorter.setRowFilter(rf);
+            }else if (text.equals("over18")) {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 17, 4);
                 rowSorter.setRowFilter(rf);
             } else if (text.equals("under18")) {
@@ -39,6 +46,21 @@ public class SearchDriver {
     public void applyFilter(LinkedList<Driver> drivers) {
         for (Driver driver : drivers) {
             tableModel.addRow(new Object[] { driver.FN, driver.LN, driver.gen, driver.DOB, driver.age, driver.EC, driver.Add, driver.point });
+        }
+    }
+
+    private int calculateAge(LocalDate dob) {
+        //creating an instance of the LocalDate class and invoking the now() method
+        //now() method obtains the current date from the system clock in the default time zone
+        LocalDate curDate = LocalDate.now();
+        //calculates the amount of time between two dates and returns the years
+        if ((dob != null) && (curDate != null))
+        {
+            return Period.between(dob, curDate).getYears();
+        }
+        else
+        {
+            return 0;
         }
     }
 
