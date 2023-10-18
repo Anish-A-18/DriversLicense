@@ -58,12 +58,8 @@ public class dataLoader {
         String EC = v[5];
         String Add = v[6];
         int point = Integer.parseInt(v[7]);
-        Date experation = null;
-        try {
-            experation = new SimpleDateFormat("yyyy-mm-dd").parse(v[8]);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        int experation = Integer.parseInt(v[8]);
+
 
         Driver d = new Driver(FN, LN, gen, DOB, age, EC, Add, point, experation);
         return d;
