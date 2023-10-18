@@ -23,8 +23,7 @@ public class SearchDriver {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 14, 7);
                 rowSorter.setRowFilter(rf);
             } else if (text.equals("expired")) {
-                Date date = new Date();
-                RowFilter<DefaultTableModel, Object> rf = RowFilter.dateFilter(RowFilter.ComparisonType.BEFORE, date,8);
+                RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.BEFORE, 2024, 8);
                 rowSorter.setRowFilter(rf);
             }else if (text.equals("over18")) {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.AFTER, 17, 4);
@@ -49,20 +48,6 @@ public class SearchDriver {
         }
     }
 
-    private int calculateAge(LocalDate dob) {
-        //creating an instance of the LocalDate class and invoking the now() method
-        //now() method obtains the current date from the system clock in the default time zone
-        LocalDate curDate = LocalDate.now();
-        //calculates the amount of time between two dates and returns the years
-        if ((dob != null) && (curDate != null))
-        {
-            return Period.between(dob, curDate).getYears();
-        }
-        else
-        {
-            return 0;
-        }
-    }
 
 }
 
