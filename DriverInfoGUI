@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.LinkedList;
 import javax.swing.*;
@@ -12,19 +11,18 @@ import javax.swing.table.TableRowSorter;
 public class DriverInfoGUI extends JFrame {
     private DefaultTableModel tableModel;
     private JTable driverTable;
-    private String csvFilePath = "/Users/anish/Documents/DriverLicense.csv";
-    private JComboBox<String> ageFilterComboBox;
+    private JComboBox<String> dropDownMenu;
 
     public DriverInfoGUI(LinkedList<Driver> drivers, LinkedList<String> header) {
         setTitle("Driver Information");
         setSize(800, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create the table model and table
+
         tableModel = new DefaultTableModel(new String[0][0], header.toArray());
         driverTable = new JTable(tableModel);
 
-        // Populate the table with driver data
+
         for (Driver driver : drivers) {
             tableModel.addRow(driver.toRow());
         }
@@ -32,32 +30,42 @@ public class DriverInfoGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(driverTable);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        // Create a SearchDriver instance for filtering
+
         SearchDriver searchDriver = new SearchDriver(tableModel);
         driverTable.setRowSorter(searchDriver.getRowSorter());
 
-        // Create a search panel with a text field, a search button, and an edit button
+
         JPanel controlPanel = new JPanel();
         JTextField searchField = new JTextField(20);
+        JButton addDriver = new JButton("Add Driver");
         JButton searchButton = new JButton("Search");
         JButton saveButton = new JButton("Edit");
 
-        ageFilterComboBox = new JComboBox<>();
-        ageFilterComboBox.addItem("All");
-        ageFilterComboBox.addItem("Over 18");
-        ageFilterComboBox.addItem("Under 18");
-        ageFilterComboBox.addItem("Suspended");
-        ageFilterComboBox.addItem("Expired");
+        dropDownMenu = new JComboBox<>();
+        dropDownMenu.addItem("All");
+        dropDownMenu.addItem("Over 18");
+        dropDownMenu.addItem("Under 18");
+        dropDownMenu.addItem("Male");
+        dropDownMenu.addItem("Female");
+        dropDownMenu.addItem("Suspended");
+        dropDownMenu.addItem("Expired");
 
-        // Add action listener to save button
-        saveButton.addActionListener(e -> saveChangesToCSV());
 
+        saveButton.addActionListener(e -> editCSV());
+
+        controlPanel.add(addDriver);
         controlPanel.add(searchField);
         controlPanel.add(searchButton);
-        controlPanel.add(ageFilterComboBox);
+        controlPanel.add(dropDownMenu);
         controlPanel.add(saveButton);
 
-        // Add an action listener to the search button
+        addDriver.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = searchField.getText();
+                searchDriver.setSearch(searchText);
+            }
+        });
+
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String searchText = searchField.getText();
@@ -65,32 +73,52 @@ public class DriverInfoGUI extends JFrame {
             }
         });
 
-        // Add an action listener to the age filter dropdown
-        ageFilterComboBox.addActionListener(new ActionListener() {
+        addDriver.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedFilter = (String) ageFilterComboBox.getSelectedItem();
+
+                Driver newDriver = new Driver("John", "Doe", "Male", "1990-01-01", 32, "Brown", "123 Main St", 0, 2027);
+                tableModel.addRow(newDriver.toRow());
+
+                driverTable.setModel(tableModel);
+                driverTable.repaint();
+            }
+        });
+
+
+        dropDownMenu.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String selectedFilter = (String) dropDownMenu.getSelectedItem();
                 if (selectedFilter.equals("All")) {
                     searchDriver.setSearch("");
-                } else if (selectedFilter.equals("Over 18")) {
+                }
+                else if (selectedFilter.equals("Over 18")) {
                     searchDriver.setSearch("over18");
-                } else if (selectedFilter.equals("Under 18")) {
+                }
+                else if (selectedFilter.equals("Under 18")) {
                     searchDriver.setSearch("under18");
-                }else if (selectedFilter.equals("Suspended")) {
+                }
+                else if (selectedFilter.equals("Male")) {
+                    searchDriver.setSearch("male");
+                }
+                else if (selectedFilter.equals("Female")) {
+                    searchDriver.setSearch("female");
+                }
+                else if (selectedFilter.equals("Suspended")) {
                     searchDriver.setSearch("suspended");
-                }else if (selectedFilter.equals("Expired")) {
+                }
+                else if (selectedFilter.equals("Expired")) {
                     searchDriver.setSearch("expired");
                 }
             }
         });
 
-        // Add components to the frame
         getContentPane().add(controlPanel, BorderLayout.NORTH);
     }
 
-    private void saveChangesToCSV() {
+    private void editCSV() {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("/Users/anish/Documents/DriverLincese.csv"));
-            // Write the header row
+
             for (int i = 0; i < tableModel.getColumnCount(); i++) {
                 writer.write(tableModel.getColumnName(i));
                 if (i < tableModel.getColumnCount() - 1) {
@@ -99,7 +127,6 @@ public class DriverInfoGUI extends JFrame {
             }
             writer.write("\n");
 
-            // Write the data rows
             for (int row = 0; row < tableModel.getRowCount(); row++) {
                 for (int col = 0; col < tableModel.getColumnCount(); col++) {
                     Object value = tableModel.getValueAt(row, col);
@@ -121,7 +148,6 @@ public class DriverInfoGUI extends JFrame {
 
 
     public static void main(String[] args) {
-        // Load your data and create the loader instance
         dataLoader loader = new dataLoader();
         loader.loadCSV();
 
