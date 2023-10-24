@@ -31,7 +31,25 @@ public class SearchDriver {
             } else if (text.equals("under18")) {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.numberFilter(RowFilter.ComparisonType.BEFORE, 18, 4);
                 rowSorter.setRowFilter(rf);
-            } else {
+            } else if (text.equals("male")) {
+                RowFilter<DefaultTableModel, Object> rf = new RowFilter<DefaultTableModel, Object>() {
+                    @Override
+                    public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+                        int columnToFilter = 2;
+                        return entry.getStringValue(columnToFilter).equals("Male");
+                    }
+                };
+                rowSorter.setRowFilter(rf);
+            } else if (text.equals("female")) {
+                RowFilter<DefaultTableModel, Object> rf = new RowFilter<DefaultTableModel, Object>() {
+                    @Override
+                    public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+                        int columnToFilter = 2;
+                        return entry.getStringValue(columnToFilter).equals("Female");
+                    }
+                };
+                rowSorter.setRowFilter(rf);
+            }else {
                 RowFilter<DefaultTableModel, Object> rf = RowFilter.regexFilter("(?i)" + text);
                 rowSorter.setRowFilter(rf);
             }
@@ -42,12 +60,4 @@ public class SearchDriver {
         return rowSorter;
     }
 
-    public void applyFilter(LinkedList<Driver> drivers) {
-        for (Driver driver : drivers) {
-            tableModel.addRow(new Object[] { driver.FN, driver.LN, driver.gen, driver.DOB, driver.age, driver.EC, driver.Add, driver.point });
-        }
-    }
-
-
 }
-
